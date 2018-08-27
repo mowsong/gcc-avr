@@ -1,0 +1,31 @@
+
+#ifndef PORT
+PORT=/dev/ttyACM0
+#end
+
+#ifndef BAUD
+BAUD=115200
+#endif
+
+AVRDUDE=$(shell which avrdude)
+ISPFLAGS=-v -carduino -p$(MCU) -D -P$(PORT) -b$(BAUD) 
+
+all: $(IHEX)
+
+%.o: %.c $(DEPS)
+	$(CC) -mmcu=$(MCU) -c -o $@ $< $(CFLAGS)
+
+$(IHEX): $(COBJ)
+	$(CC) -mmcu=$(MCU) -o $(ELF) $(COBJ) $(LDFLAGS)
+	$(OBJC) -O ihex -R .eeprom $(ELF) $(IHEX)
+
+clean:
+	rm -rf *.o *.hex $(ELF) $(IHEX)	
+
+read:
+	$(ISP) $(ISPFLAGS) -U flash:r:$(TARGET)_backup.hex:i
+
+flash: $(IHEX)
+	$(AVRDUDE) $(ISPFLAGS) -U flash:w:$(IHEX)
+
+.PHONY: flash read
