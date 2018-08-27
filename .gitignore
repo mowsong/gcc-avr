@@ -1,0 +1,15 @@
+# stuff "git status" should ignore
+
+# build output
+*.o
+*.o.??????
+*.a
+*.log
+*.elf
+*.d
+*.bin
+*.map
+*.hex
+
+# editor files
+*.swp
