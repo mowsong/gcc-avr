@@ -8,13 +8,13 @@
 #include <avr/interrupt.h>
 #include "light_ws2812.h"
 
-#define MAXPIX 8
+#define MAXPIX 20
 
 struct cRGB led[MAXPIX];
 
 int main(void)
 {
-	uint8_t i;
+	int8_t i;
 
 	DDRB|=_BV(ws2812_pin);
 
@@ -28,10 +28,31 @@ int main(void)
     
     _delay_ms(250);
 
-    led[3].g = 60;
-    led[3].b = 70;
-
-    ws2812_sendarray((uint8_t *)led,MAXPIX*3);
 		 
-	while(1); 
+	while(1) {
+        for (i=0; i<MAXPIX; i++) {
+            led[i].r=0;
+            led[i].g=0;
+            led[i].b=50;
+
+            ws2812_sendarray((uint8_t *)led,MAXPIX*3);
+            led[i].r=0;
+            led[i].g=0;
+            led[i].b=0;
+            ws2812_sendarray((uint8_t *)led,MAXPIX*3);
+            _delay_ms(100);
+        }
+        for (i=MAXPIX-1; i>=0; i--) {
+            led[i].r=0;
+            led[i].g=50;
+            led[i].b=0;
+
+            ws2812_sendarray((uint8_t *)led,MAXPIX*3);
+            led[i].r=0;
+            led[i].g=0;
+            led[i].b=0;
+            ws2812_sendarray((uint8_t *)led,MAXPIX*3);
+            _delay_ms(50);
+        }
+    }
 }
