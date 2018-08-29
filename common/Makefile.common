@@ -1,3 +1,12 @@
+TARGET=$(notdir $(CURDIR))
+ELF=$(TARGET).elf
+IHEX=$(TARGET).hex
+
+COBJ=$(SOURCES:.c=.o)
+
+CC=avr-gcc
+OBJC=avr-objcopy
+SIZE=avr-size
 
 #ifndef PORT
 PORT=/dev/ttyACM0
@@ -18,6 +27,7 @@ all: $(IHEX)
 $(IHEX): $(COBJ)
 	$(CC) -mmcu=$(MCU) -o $(ELF) $(COBJ) $(LDFLAGS)
 	$(OBJC) -O ihex -R .eeprom $(ELF) $(IHEX)
+	$(SIZE) $(ELF)
 
 clean:
 	rm -rf *.o *.hex $(ELF) $(IHEX)	
