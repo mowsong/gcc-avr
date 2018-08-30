@@ -8,21 +8,21 @@
 const char crlf[] PROGMEM = "\r\n\007";
 const char backspace[] PROGMEM = "\b \b";
 const char exchange[] PROGMEM = " sent,  received=";
-const char  prompt[] = "\r\n[H]-help >";
-const char  nullprompt[] = "\r\n          ";
-const char  error1[] = " [illegal character entered]";
-const char  newstat[] = " New";
-const char  bit0[] = " (MSB first)";
-const char  bit1[] = " (LSB first)";
-const char  auto0[] = " (pulse low)";
-const char  auto1[] = " (pulse high)";
-const char  auto2[] = " (off)";
-const char  gap[] = "   ";
-const char  cfgwrite[] = " configuration saved";
-const char  config[] = "Configuration loaded -";
-const char  noconfig[] = "No configuration stored, defaults used\007";
+const char prompt[] PROGMEM = "\r\n[H]-help >";
+const char nullprompt[] PROGMEM = "\r\n          ";
+const char error1[] PROGMEM = " [illegal character entered]";
+const char newstat[] PROGMEM = " New";
+const char bit0[] PROGMEM = " (MSB first)";
+const char bit1[] PROGMEM = " (LSB first)";
+const char auto0[] PROGMEM = " (pulse low)";
+const char auto1[] PROGMEM = " (pulse high)";
+const char auto2[] PROGMEM = " (off)";
+const char gap[] PROGMEM = "   ";
+const char cfgwrite[] PROGMEM = " configuration saved";
+const char config[] PROGMEM = "Configuration loaded -";
+const char noconfig[] PROGMEM = "No configuration stored, defaults used\007";
 
-const char  status[][MAXSTATSTRLEN] = 
+const char  status[][MAXSTATSTRLEN] PROGMEM = 
 { "Status: ",
   "SCK=",
   "SS=",
@@ -31,7 +31,7 @@ const char  status[][MAXSTATSTRLEN] =
   "Mode="
 };
 
-const char  help[][MAXHELPSTRLEN] = 
+const char  help[][MAXHELPSTRLEN] PROGMEM = 
 { "\r\n\r\n",
   "****** SPI Gateway - USART to SPI Master Bridge ******\r\n",
   "****** V1.1   Andy Gayne 2004    GD Technik, UK ******\r\n\r\n",
@@ -55,7 +55,7 @@ const char  help[][MAXHELPSTRLEN] =
   "[W] - Write (save) configuration (auto loaded at reset)\r\n\r\n"
 // 1234567890123456789012345678901234567890123456789012345678901234  64 char
 };
-const char  freq[][MAXFREQSTRLEN] = 
+const char  freq[][MAXFREQSTRLEN] PROGMEM = 
 { "  (921.6kHz  Fosc/4 - 3.6864MHz xtal)",
   "  (230.4kHz  Fosc/16 - 3.6864MHz xtal)",
   "  (57.6kHz  Fosc/64 - 3.6864MHz xtal)",

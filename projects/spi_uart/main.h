@@ -26,6 +26,7 @@
 #include "util/delay.h"
 #include "avr/interrupt.h"
 #include "avr/pgmspace.h"
+#include "avr/eeprom.h"
 #include "ctype.h"
 #include "main.h"
 #include "USART2.h"

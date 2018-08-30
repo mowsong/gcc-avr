@@ -13,6 +13,14 @@
 
 static volatile uint16_t TICK = 0;
 
+// string in flash
+const uint8_t pgm_hello[] PROGMEM = "Hello, AVR\r\n";
+const uint8_t pgm_test[] PROGMEM = "This is a test\r\n";
+
+// string in sram
+const uint8_t hello[] = "Hello, AVR in SRAM\r\n";
+const uint8_t test[] = "This is a test in SRAM\r\n";
+
 ISR(TIMER0_COMPA_vect)
 {
     if (TICK++ >= 500) {
@@ -57,12 +65,24 @@ void USART_Transmit(uint8_t data)
     UDR0 = data;
 }
 
-uint8_t USART_Receive(void)
+void USART_PrintString(uint8_t *msg)
 {
-    while ( !(UCSR0A & (1<<RXC0)) );
-    
-    return UDR0;
+    while (*msg) {
+        USART_Transmit(*msg++);
+    }
 }
+
+void USART_PrintString_P(const uint8_t *msg)
+{
+    uint8_t c;
+
+    c = pgm_read_byte(msg++);
+    while (c) {
+        USART_Transmit(c);
+        c = pgm_read_byte(msg++);
+    }
+}
+
 
 int main(void)
 {
@@ -80,8 +100,17 @@ int main(void)
     sei();
 
     while (1) { 
-        USART_Transmit(USART_Receive());    
+        USART_PrintString_P(pgm_hello);
+        _delay_ms(100);
+        USART_PrintString(hello);
+        _delay_ms(100);
+        USART_PrintString_P(pgm_test);
+        _delay_ms(100);
+        USART_PrintString(test);
+        _delay_ms(100);
     }
 }
+
+
 
 
