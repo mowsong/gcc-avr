@@ -15,9 +15,9 @@ int main(void)
 
     while (1) {
         GPIO_Set(LED_Port, LED_Bit);
-        _delay_ms(100);
-        GPIO_Clr(LED_Port, LED_Bit);
         _delay_ms(500);
+        GPIO_Clr(LED_Port, LED_Bit);
+        _delay_ms(100);
     }
 }
 
