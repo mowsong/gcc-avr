@@ -1,8 +1,8 @@
 #include "main.h"
 
-//#define __flash 
-#define __eeprom 
-#define __no_init
+#define __DEBUG_EEPROM__  0
+
+void printhex(char c);
 
 // string literals
 const char crlf[] PROGMEM = "\r\n\007";
@@ -67,7 +67,11 @@ const char  freq[][MAXFREQSTRLEN] PROGMEM =
 };
 
 // globals
-__eeprom __no_init unsigned char config1, config2, config3, checksum;
+//__eeprom __no_init unsigned char config1, config2, config3, checksum;
+unsigned char EEMEM config1;
+unsigned char EEMEM config2;
+unsigned char EEMEM config3;
+unsigned char EEMEM checksum;
 
 union
 {
@@ -89,8 +93,9 @@ int main(void)
 {
   char tmp;
   
-  USART_Init( 9600 );     // Baudrate to 19200 bps using a 3.6864MHz crystal
+  USART_Init(9600);     // Baudrate to 19200 bps using a 3.6864MHz crystal
   SPI_MasterInit();
+
   sspinadjust(1);       // A good starting level for most applications
   spi_ss.ss_auto = 2;          // Default the auto toggle mode to 'off'
 
@@ -322,11 +327,13 @@ void hexsequence(void)
   for (ix = 0;ix < length;ix++) // Display the exchange
   {
     send_str(nullprompt);
-    USART_Transmit( htoa((tx_str[ix] & 0xf0) >> 4) );//display upper nibble
-    USART_Transmit( htoa(tx_str[ix] & 0x0F) );       //display lower nibble
+    printhex(tx_str[ix]);
+    //USART_Transmit( htoa((tx_str[ix] & 0xf0) >> 4) );//display upper nibble
+    //USART_Transmit( htoa(tx_str[ix] & 0x0F) );       //display lower nibble
     send_str(exchange);
-    USART_Transmit( htoa((rx_str[ix] & 0xf0) >> 4) );//display upper nibble
-    USART_Transmit( htoa(rx_str[ix] & 0x0F) );       //display lower nibble
+    printhex(rx_str[ix]);
+    //USART_Transmit( htoa((rx_str[ix] & 0xf0) >> 4) );//display upper nibble
+    //USART_Transmit( htoa(rx_str[ix] & 0x0F) );       //display lower nibble
   }
 }
 
@@ -445,14 +452,43 @@ void setmode(void)
 //***************************************************************************
 void writeconfig(void)
 {
-  //__disable_interrupt(); // disable interrupts during EEPROM write
-  cli();
-  config1 = SPCR;        // store SPCR register
-  config2 = SPSR;        // store SPSR register
-  config3 = spi_ss.flags;       // store global flag variable
-  checksum = 0 - (config1 + config2 + config3);// generate and store checksum
-  //__enable_interrupt();  // Enable interrupts => enable UART interrupts
-  sei();
+  unsigned char tmp1, tmp2, tmp3, tmp4;
+
+  cli(); // disable interrupts during EEPROM write
+
+#if (__DEBUG_EEPROM__ == 1)
+  send_str(crlf);
+  printhex(SPCR);
+  printhex(SPSR);
+  printhex(spi_ss.flags);
+  send_str(crlf);
+#endif
+
+  eeprom_write_byte(&config1, SPCR);          // store SPCR register 
+
+  eeprom_write_byte(&config2, SPSR);          // store SPSR register
+
+  eeprom_write_byte(&config3, spi_ss.flags);  // store global flag variable
+ 
+  //checksum = 0 - (config1 + config2 + config3);
+  tmp1 = eeprom_read_byte(&config1);
+  tmp2 = eeprom_read_byte(&config2);
+  tmp3 = eeprom_read_byte(&config3);
+  tmp4 = 0 - (tmp1 + tmp2 + tmp3);
+    
+  eeprom_write_byte(&checksum, tmp4); // generate and store checksum
+  
+#if (__DEBUG_EEPROM__ == 1)
+  send_str(crlf);
+  printhex(tmp1);
+  printhex(tmp2);
+  printhex(tmp3);
+  printhex(tmp4);
+  send_str(crlf);
+#endif
+
+  sei(); // Enable interrupts => enable UART interrupts
+  
   send_str(cfgwrite);
 }
 
@@ -460,12 +496,29 @@ void writeconfig(void)
 // loadconfig - fetch the configuration from EEPROM
 //***************************************************************************
 void loadconfig(void)
-{ // check for valid config - blank EEPROM will not give zero result
-  if (!((config1 + config2 + config3 + checksum) & 0xFF))
+{ 
+  unsigned char tmp1, tmp2, tmp3, tmp4;
+
+  // check for valid config - blank EEPROM will not give zero result
+  tmp1 = eeprom_read_byte(&config1);
+  tmp2 = eeprom_read_byte(&config2);
+  tmp3 = eeprom_read_byte(&config3);
+  tmp4 = eeprom_read_byte(&checksum);
+  
+#if (__DEBUG_EEPROM__ == 1)
+  send_str(crlf);
+  printhex(tmp1);
+  printhex(tmp2);
+  printhex(tmp3);
+  printhex(tmp4);
+  send_str(crlf);
+#endif
+
+  if (! ((tmp1 + tmp2 + tmp3 + tmp4) & 0xFF) )
   {
-    SPCR = config1;        // restore SPCR register
-    SPSR = config2;        // restore SPSR register
-    spi_ss.flags = config3;       // restore global flag variable
+    SPCR = tmp1;        // restore SPCR register
+    SPSR = tmp2;        // restore SPSR register
+    spi_ss.flags = tmp3;       // restore global flag variable
 
     sspinadjust(spi_ss.ss_level); // restore default SS pin level    
     
@@ -474,3 +527,13 @@ void loadconfig(void)
   }
   else send_str(noconfig);
 }
+
+//***************************************************************************
+// printhex 
+//***************************************************************************
+void printhex(char c)
+{
+  USART_Transmit(htoa((c & 0xf0) >> 4));
+  USART_Transmit(htoa((c & 0x0f)));
+}
+

@@ -23,6 +23,8 @@
 
 void SPI_MasterInit(void)
 {
+  char tmp;
+
   // Set MOSI, SCK and SS output, all others input
   DDR_SPI = (1 << P_MOSI) | (1 << P_SCK) | (1 << P_SS);
   // make SS output high
