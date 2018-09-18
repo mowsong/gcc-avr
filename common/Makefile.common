@@ -8,16 +8,13 @@ CC=avr-gcc
 OBJC=avr-objcopy
 SIZE=avr-size
 
-#ifndef PORT
-PORT=/dev/ttyACM0
-#end
-
-#ifndef BAUD
-BAUD=115200
-#endif
+PROG ?= arduino
+PORT ?= /dev/ttyACM0
+BAUD ?= 115200
 
 AVRDUDE=$(shell which avrdude)
-ISPFLAGS=-v -carduino -p$(MCU) -D -P$(PORT) -b$(BAUD) 
+
+ISPFLAGS+= -v -c$(PROG) -p$(MCU) -P$(PORT) -b$(BAUD) 
 
 all: $(IHEX)
 
@@ -30,7 +27,7 @@ $(IHEX): $(COBJ)
 	$(SIZE) $(ELF)
 
 clean:
-	rm -rf *.o *.hex $(ELF) $(IHEX)	
+	rm -rf *.o *.hex $(ELF) $(IHEX) *.map
 
 read:
 	$(ISP) $(ISPFLAGS) -U flash:r:$(TARGET)_backup.hex:i

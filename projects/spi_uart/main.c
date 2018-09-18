@@ -11,7 +11,7 @@ const char exchange[] PROGMEM = " sent,  received=";
 const char prompt[] PROGMEM = "\r\n[H]-help >";
 const char nullprompt[] PROGMEM = "\r\n          ";
 const char error1[] PROGMEM = " [illegal character entered]";
-const char newstat[] PROGMEM = " New";
+const char newstat[] PROGMEM = "\r\nNew";
 const char bit0[] PROGMEM = " (MSB first)";
 const char bit1[] PROGMEM = " (LSB first)";
 const char auto0[] PROGMEM = " (pulse low)";
@@ -149,12 +149,12 @@ int main(void)
 //***************************************************************************
 void send_str (const char  * str)
 {
-  char *p = (char *)str;
+  char c = pgm_read_byte(str++);
 
-  while (*p) // send string characters until null terminator found
+  while (c) // send string characters until null terminator found
   {
-    USART_Transmit(*p);
-    p++;
+    USART_Transmit(c);
+    c = pgm_read_byte(str++);
   }
 }
 
