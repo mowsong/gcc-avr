@@ -1,3 +1,37 @@
+/*****************************************************************************
+* Ported to GCC by ngms
+* 2018-09-18
+*
+* Target is the Arduino Uno, ATmega328p @ 16MHz
+*****************************************************************************/
+ 
+/*****************************************************************************
+*
+* Atmel Corporation
+*
+* File              : main.c
+* Compiler          : IAR EWAAVR 2.28a/3.10c
+* Revision          : $Revision: 1.3 $
+* Date              : $Date: 17. mars 2004 14:47:06 $
+* Updated by        : $Author: ltwa $
+*
+* Support mail      : avr@atmel.com
+*
+* Supported devices : All devices with a SPI and USART module can be used.
+*                     The example is written for the ATmega8
+*
+* AppNote           : AVR303 - SPI-UART Gateway
+*
+// Author           : Andy Gayne. avr@gayne.co.uk   www.gd-technik.com
+// Platform         : Developed on STK500. Can be used stand-alone.
+// Description      : 
+// This program provides a gateway between the Mega8 Master SPI port and an 
+// RS232C ASCII terminal, for example a terminal program running on a PC. The 
+// terminal can then be used to configure the port and send/receive data via
+// SPI, allowing interactive communication with, and debugging of, SPI slave
+// devices.
+****************************************************************************/
+
 #include "main.h"
 
 #define __DEBUG_EEPROM__  0
@@ -38,11 +72,11 @@ const char  help[][MAXHELPSTRLEN] PROGMEM =
   "Enter hex encoded byte to send via SPI, or commands:\r\n",
   "[?] - Show current status\r\n",
   "[X] - Extended hex sequence ( maximum 16 bytes )\r\n",
-  "[Q] - SCK freq ( ----SPI2X=0-----    ----SPI2X=1----- )\r\n",
-  "               ( 0=F/4   921.6kHz    4=F/2  1.8432MHz )\r\n",
-  "               ( 1=F/16  230.4kHz    5=F/8   460.8kHz )\r\n",
-  "               ( 2=F/64   57.6kHz    6=F/32  115.2kHz )\r\n",
-  "               ( 3=F/128  28.8kHz    7=F/64   57.6kHz )\r\n",
+  "[Q] - SCK freq ( ----SPI2X=0----    ----SPI2X=1---- )\r\n",
+  "               ( 0=F/4      4MHz    4=F/2      8MHz )\r\n",
+  "               ( 1=F/16     1MHz    5=F/8      2MHz )\r\n",
+  "               ( 2=F/64   250kHz    6=F/32   500kHz )\r\n",
+  "               ( 3=F/128  125kHz    7=F/64   250kHz )\r\n",
   "[S] - Slave Select pin level (0=low, 1=high)\r\n",
   "[P] - Auto-toggle SS control (0=low, 1=high, 2=off)\r\n",
   "[T] - Bit Transmission Order (0=MSB first, 1=LSB first)\r\n",
@@ -56,18 +90,17 @@ const char  help[][MAXHELPSTRLEN] PROGMEM =
 // 1234567890123456789012345678901234567890123456789012345678901234  64 char
 };
 const char  freq[][MAXFREQSTRLEN] PROGMEM = 
-{ "  (921.6kHz  Fosc/4 - 3.6864MHz xtal)",
-  "  (230.4kHz  Fosc/16 - 3.6864MHz xtal)",
-  "  (57.6kHz  Fosc/64 - 3.6864MHz xtal)",
-  "  (28.8kHz  Fosc/128 - 3.6864MHz xtal)",
-  "  (1.8432MHz  Fosc/2 - 3.6864MHz xtal)",
-  "  (460.8kHz  Fosc/8 - 3.6864MHz xtal)",
-  "  (115.2kHz  Fosc/32 - 3.6864MHz xtal)",
-  "  (57.6kHz  Fosc/64 - 3.6864MHz xtal)"
+{ "  (4MHz  Fosc/4 - 16MHz HSRC)",
+  "  (1MHz  Fosc/16 - 16MHz HSRC)",
+  "  (250kHz  Fosc/64 - 16MHz HSRC)",
+  "  (125kHz  Fosc/128 - 16MHz HSRC)",
+  "  (8MHz  Fosc/2 - 16MHz HSRC)",
+  "  (2MHz  Fosc/8 - 16MHz HSRC)",
+  "  (500kHz  Fosc/32 - 16MMHz HSRC)",
+  "  (250kHz  Fosc/64 - 16MHz HSRC)"
 };
 
 // globals
-//__eeprom __no_init unsigned char config1, config2, config3, checksum;
 unsigned char EEMEM config1;
 unsigned char EEMEM config2;
 unsigned char EEMEM config3;
@@ -88,12 +121,11 @@ union
 //***************************************************************************
 // MAIN
 //***************************************************************************
-//__C_task void main( void )
 int main(void)
 {
   char tmp;
   
-  USART_Init(9600);     // Baudrate to 19200 bps using a 3.6864MHz crystal
+  USART_Init(57600);     // Baudrate 
   SPI_MasterInit();
 
   sspinadjust(1);       // A good starting level for most applications
