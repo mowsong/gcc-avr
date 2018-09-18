@@ -45,7 +45,7 @@ const char exchange[] PROGMEM = " sent,  received=";
 const char prompt[] PROGMEM = "\r\n[H]-help >";
 const char nullprompt[] PROGMEM = "\r\n          ";
 const char error1[] PROGMEM = " [illegal character entered]";
-const char newstat[] PROGMEM = "\r\nNew";
+const char newstat[] PROGMEM = " New";
 const char bit0[] PROGMEM = " (MSB first)";
 const char bit1[] PROGMEM = " (LSB first)";
 const char auto0[] PROGMEM = " (pulse low)";
@@ -53,7 +53,7 @@ const char auto1[] PROGMEM = " (pulse high)";
 const char auto2[] PROGMEM = " (off)";
 const char gap[] PROGMEM = "   ";
 const char cfgwrite[] PROGMEM = " configuration saved";
-const char config[] PROGMEM = "Configuration loaded -";
+const char config[] PROGMEM = "\r\nConfiguration loaded -";
 const char noconfig[] PROGMEM = "No configuration stored, defaults used\007";
 
 const char  status[][MAXSTATSTRLEN] PROGMEM = 
@@ -86,7 +86,8 @@ const char  help[][MAXHELPSTRLEN] PROGMEM =
   "       1    Setup (Rising)   Sample(Falling)   0    1\r\n",
   "       2    Sample(Falling)  Setup (Rising)    1    0\r\n",
   "       3    Setup (Falling)  Sample(Rising)    1    1\r\n",
-  "[W] - Write (save) configuration (auto loaded at reset)\r\n\r\n"
+  "[W] - Write (save) configuration (auto loaded at reset)\r\n",
+  "[L] - Load (read) configuration\r\n\r\n"
 // 1234567890123456789012345678901234567890123456789012345678901234  64 char
 };
 const char  freq[][MAXFREQSTRLEN] PROGMEM = 
@@ -174,6 +175,9 @@ int main(void)
         break;
       case 'W':     // write configuration to EEPROM
         writeconfig();
+        break;
+      case 'L':
+        loadconfig();
         break;
       default:
         if(isgraph(tmp)) send_str(backspace); // erase invalid characters
