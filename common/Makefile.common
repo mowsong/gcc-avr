@@ -4,19 +4,23 @@ IHEX=$(TARGET).hex
 
 COBJ=$(SOURCES:.c=.o)
 
-CC=avr-gcc
-OBJC=avr-objcopy
-SIZE=avr-size
+TOOLCHAIN=~/Desktop/maker_tools/arduino-1.8.5/hardware/tools/avr/bin
+
+CC  =$(TOOLCHAIN)/avr-gcc
+OBJC=$(TOOLCHAIN)/avr-objcopy
+SIZE=$(TOOLCHAIN)/avr-size
 
 PROG ?= arduino
 PORT ?= /dev/ttyACM0
 BAUD ?= 115200
 
-AVRDUDE=$(shell which avrdude)
+#AVRDUDE=$(shell which avrdude)
+AVRDUDE=$(TOOLCHAIN)/avrdude -C ~/Desktop/maker_tools/arduino-1.8.5/hardware/tools/avr/etc/avrdude.conf
 
 ISPFLAGS+= -v -c$(PROG) -p$(MCU) -P$(PORT) -b$(BAUD) 
 
 all: $(IHEX)
+	@rm *.o
 
 %.o: %.c $(DEPS)
 	$(CC) -mmcu=$(MCU) -c -o $@ $< $(CFLAGS)

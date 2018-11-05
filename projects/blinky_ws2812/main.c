@@ -8,7 +8,7 @@
 #include <avr/interrupt.h>
 #include "light_ws2812.h"
 
-#define MAXPIX 20
+#define MAXPIX 8
 
 struct cRGB led[MAXPIX];
 
@@ -32,7 +32,7 @@ int main(void)
 	while(1) {
         for (i=0; i<MAXPIX; i++) {
             led[i].r=0;
-            led[i].g=0;
+            led[i].g=100;
             led[i].b=50;
 
             ws2812_sendarray((uint8_t *)led,MAXPIX*3);
@@ -45,7 +45,7 @@ int main(void)
         for (i=MAXPIX-1; i>=0; i--) {
             led[i].r=0;
             led[i].g=50;
-            led[i].b=0;
+            led[i].b=100;
 
             ws2812_sendarray((uint8_t *)led,MAXPIX*3);
             led[i].r=0;
