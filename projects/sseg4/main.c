@@ -61,7 +61,7 @@ uint32_t TICK_Get(void)
 
 void SSEG_Init(void) 
 {
-	SSEG_Buffer[0] = DIG[0];
+	SSEG_Buffer[0] = DIG_OFF;
 	SSEG_Buffer[1] = DIG_OFF;
 	SSEG_Buffer[2] = DIG_OFF;
 	SSEG_Buffer[3] = DIG_OFF;
@@ -120,16 +120,16 @@ int main(void)
     while (1) {
 #if 1
 		tick = TICK_Get();
-		if (tick - old_tick>=200) {
+		if (tick - old_tick>=2000) {
 			
 			old_tick = tick;
 
-			SSEG_Buffer[0] = DIG[n];
+			SSEG_Buffer[0] = DIG[n & 0xf];
+			SSEG_Buffer[1] = DIG[n & 0xf];
+			SSEG_Buffer[2] = DIG[n & 0xf];
+			SSEG_Buffer[3] = DIG[n & 0xf];
 			n++;
-			if (n > 19) {
-				n = 0;
-			}
-		}
+        }
 #endif
 	}
 }
